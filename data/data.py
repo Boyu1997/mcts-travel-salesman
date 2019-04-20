@@ -1,10 +1,11 @@
 import pandas as pd
 
 def data():
+    
     raw_data = pd.read_csv('raw-flight-segment-data.csv')
 
     # filter only passenger flights
-    raw_data = raw_data[raw_data['PASSENGERS'] > 0]
+    raw_data = raw_data[raw_data['AIRCRAFT_CONFIG'] == 1]
 
     # filter only segments with at least a daily flight
     # the dataset contain one month of data, so that translate to at least 30 flights performed
@@ -20,6 +21,10 @@ def data():
     # select the relevant columns
     raw_data = raw_data[['DISTANCE', 'AIR_TIME', 'ORIGIN', 'ORIGIN_CITY_NAME', 'DEST','DEST_CITY_NAME']]
 
+    # convert numeric data to integer
+    raw_data['DISTANCE'] = raw_data['DISTANCE'].astype('int')
+    raw_data['AIR_TIME'] = raw_data['AIR_TIME'].astype('int')
+
     # drop NaN values
     raw_data = raw_data.dropna()
 
@@ -29,6 +34,8 @@ def data():
     # in such case we will simply go with the first airline
     data = raw_data.groupby(['ORIGIN', 'DEST']).first()
     print ("Total segments: {:d}".format(data.shape[0]))
+
+    data.to_csv('flight-segment-data.csv')
 
 
 if __name__ == "__main__":
