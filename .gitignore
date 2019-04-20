@@ -1,5 +1,7 @@
 ### Python ###
-/venv
+venv
+__pycache__
+*ipynb
 
 ### macOS ###
 .DS_Store
