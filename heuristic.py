@@ -1,7 +1,13 @@
 import random
 import copy
 
-def nearest_neighbor(graph):
+def calculate_cost(edges):
+    cost = 0
+    for edge in edges:
+        cost += edge[2]['weight']
+    return cost
+
+def greedy(graph):
 
     # setup
     g = copy.deepcopy(graph)
@@ -26,8 +32,28 @@ def nearest_neighbor(graph):
 
 
     # calculate cost
-    cost = 0
-    for edge in visited_edges:
-        cost += edge[2]['weight']
+    cost = calculate_cost(visited_edges)
 
     return visited_edges, cost
+
+
+def two_opt(graph):
+
+    # setup &
+    g = copy.deepcopy(graph)
+    path_edges = []
+    unvisited_nodes = list(g.nodes)
+    random.shuffle(unvisited_nodes)
+    current_node = unvisited_nodes.pop()
+
+    # generate a random path
+    while len(unvisited_nodes) > 0:
+        next_node = unvisited_nodes.pop()
+        path_edges.append(tuple([current_node, next_node,
+                                 graph.edges[current_node, next_node]]))
+        current_node = next_node
+
+    # calculate cost
+    cost = calculate_cost(path_edges)
+
+    return path_edges, cost
