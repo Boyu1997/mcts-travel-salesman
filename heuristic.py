@@ -1,5 +1,6 @@
 import random
 import copy
+import numpy as np
 
 def calculate_cost(edges):
     cost = 0
@@ -39,10 +40,9 @@ def greedy(graph):
 
 def two_opt(graph):
 
-    # setup &
-    g = copy.deepcopy(graph)
+    # setup
     path_edges = []
-    unvisited_nodes = list(g.nodes)
+    unvisited_nodes = list(graph.nodes)
     random.shuffle(unvisited_nodes)
     current_node = unvisited_nodes.pop()
 
@@ -52,6 +52,37 @@ def two_opt(graph):
         path_edges.append(tuple([current_node, next_node,
                                  graph.edges[current_node, next_node]]))
         current_node = next_node
+
+    path_edges.append(tuple([path_edges[-1][1], path_edges[0][0],
+                                graph.edges[path_edges[-1][1], path_edges[0][1]]]))
+    path_edges = np.array(path_edges)
+
+
+    # two opt
+    counter = 0
+    while counter < len(path_edges)*10:   # when path is stable, terminate
+        counter += 1
+        np.roll(path_edges, 1)   # roll the path so the first and last edge can be updated
+        selected_edge_indexs = random.sample(range(len(path_edges)), 2)
+        selected_edge_indexs = sorted(selected_edge_indexs)
+        selected_edges = [path_edges[i] for i in selected_edge_indexs]
+        current_cost = selected_edges[0][2]['weight'] + selected_edges[1][2]['weight']
+        new_edges = [tuple([selected_edges[0][0], selected_edges[1][0],
+                            graph.edges[selected_edges[0][0], selected_edges[1][0]]]),
+                     tuple([selected_edges[0][1], selected_edges[1][1],
+                                         graph.edges[selected_edges[0][1], selected_edges[1][1]]])]
+        new_cost = new_edges[0][2]['weight'] + new_edges[1][2]['weight']
+        if new_cost < current_cost:   # perform the switch
+            # switch the two selected edges
+            path_edges[selected_edge_indexs[0]] = new_edges[0]
+            path_edges[selected_edge_indexs[1]] = new_edges[1]
+
+            # reoreder the edges in between
+            if abs(selected_edge_indexs[0] - selected_edge_indexs[1]) > 1:
+                 path_edges[selected_edge_indexs[0]+1:selected_edge_indexs[1]] = path_edges[selected_edge_indexs[1]-1:selected_edge_indexs[0]:-1]
+            for i in range(selected_edge_indexs[0] + 1, selected_edge_indexs[1]):
+                path_edges[i]= tuple([path_edges[i][1], path_edges[i][0], path_edges[i][2]])
+            counter = 0   # reset timeout counter
 
     # calculate cost
     cost = calculate_cost(path_edges)
