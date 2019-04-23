@@ -8,10 +8,10 @@ def calculate_cost(edges):
         cost += edge[2]['weight']
     return cost
 
-def greedy(graph):
+def greedy(network):
 
     # setup
-    g = copy.deepcopy(graph)
+    g = copy.deepcopy(network.graph)
     visited_edges = []
     current_node = random.choice(list(g.nodes))
 
@@ -29,7 +29,7 @@ def greedy(graph):
 
     # return to the origin node
     visited_edges.append(tuple([visited_edges[-1][1], visited_edges[0][0],
-                                graph.edges[visited_edges[-1][1], visited_edges[0][1]]]))
+                                network.graph.edges[visited_edges[-1][1], visited_edges[0][1]]]))
 
 
     # calculate cost
@@ -38,11 +38,12 @@ def greedy(graph):
     return visited_edges, cost
 
 
-def two_opt(graph):
+def two_opt(network):
 
     # setup
+    g = network.graph
     path_edges = []
-    unvisited_nodes = list(graph.nodes)
+    unvisited_nodes = list(g.nodes)
     random.shuffle(unvisited_nodes)
     current_node = unvisited_nodes.pop()
 
@@ -50,11 +51,11 @@ def two_opt(graph):
     while len(unvisited_nodes) > 0:
         next_node = unvisited_nodes.pop()
         path_edges.append(tuple([current_node, next_node,
-                                 graph.edges[current_node, next_node]]))
+                                 g.edges[current_node, next_node]]))
         current_node = next_node
 
     path_edges.append(tuple([path_edges[-1][1], path_edges[0][0],
-                                graph.edges[path_edges[-1][1], path_edges[0][1]]]))
+                                g.edges[path_edges[-1][1], path_edges[0][1]]]))
     path_edges = np.array(path_edges)
 
 
@@ -68,9 +69,9 @@ def two_opt(graph):
         selected_edges = [path_edges[i] for i in selected_edge_indexs]
         current_cost = selected_edges[0][2]['weight'] + selected_edges[1][2]['weight']
         new_edges = [tuple([selected_edges[0][0], selected_edges[1][0],
-                            graph.edges[selected_edges[0][0], selected_edges[1][0]]]),
+                            g.edges[selected_edges[0][0], selected_edges[1][0]]]),
                      tuple([selected_edges[0][1], selected_edges[1][1],
-                                         graph.edges[selected_edges[0][1], selected_edges[1][1]]])]
+                                         g.edges[selected_edges[0][1], selected_edges[1][1]]])]
         new_cost = new_edges[0][2]['weight'] + new_edges[1][2]['weight']
         if new_cost < current_cost:   # perform the switch
             # switch the two selected edges
