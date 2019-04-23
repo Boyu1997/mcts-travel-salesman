@@ -33,10 +33,8 @@ class MCTS():
                 return self.select(node.policy, prob_policy)
             else:
                 if len(node.expandables) > 0:
-                    print ("random expand")
                     return node
                 else:
-                    print ("random no policy")
                     next_node = random.choice(list(node.expanded.values()))
                     return self.select(next_node, prob_policy)
 
@@ -69,17 +67,20 @@ class MCTS():
             self.backpropagate(node.parent)
 
 
-    def generate_path_edges(self, path):
+    def calculate_path_edges(self, path):
         path_edges = []
+        cost = 0
         current_node = path.pop()
         while len(path) > 0:
             next_node = path.pop()
             path_edges.append(tuple([current_node, next_node,
                                      self.graph.edges[current_node, next_node]]))
+            cost += path_edges[-1][2]['weight']
             current_node = next_node
         path_edges.append(tuple([path_edges[-1][1], path_edges[0][0],
                                  self.graph.edges[path_edges[-1][1], path_edges[0][1]]]))
-        return path_edges
+        cost += path_edges[-1][2]['weight']
+        return path_edges, cost
 
 
     def run(self, prob_policy, num_of_expand, num_of_simulate):
@@ -101,8 +102,7 @@ class MCTS():
             # back up the score and update policy
             self.backpropagate(current_node)
 
-        path_edges = self.generate_path_edges(current_node.path)
-        return path_edges
+        return self.calculate_path_edges(current_node.path)
 
 
 class RandomMCTS(MCTS):
