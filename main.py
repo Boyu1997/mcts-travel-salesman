@@ -3,7 +3,7 @@ from heuristic import greedy, two_opt
 from mcts import RandomMCTS
 from plot import plot_path
 
-network = RandomNetwork(20, 100)
+network = RandomNetwork(40, 100)
 
 ### heuristic 1
 edges, cost = greedy(network)
@@ -15,5 +15,5 @@ edges, cost = two_opt(network)
 
 ### mcts
 random_mcts = RandomMCTS(network)
-edges = random_mcts.run(20, 100)
+edges = random_mcts.run(0.95, 5, 10)
 plot_path(network.graph.nodes, edges, network.positions)
