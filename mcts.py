@@ -38,6 +38,25 @@ class MCTS():
         return new_node_object
 
 
+    def run(self, num_of_expand, num_of_simulate):
+        current_node = self.root
+        while True:
+            # reach the end, break condition
+            if len(current_node.expendables) == 0:
+                break
+
+            # expand and simulate
+            for i in range(min(num_of_expand, len(current_node.expendables))):
+                new_node = self.expand(current_node)
+                costs = []
+                for j in range(num_of_simulate):
+                    costs.append(self.simulate(new_node))
+                new_node.score = sum(costs) / num_of_simulate
+
+            # back up the score and update policy
+            self.backpropagate(current_node)
+
+
     def backpropagate(self, node):
         scores = [[key, n.score] for key, n in node.expended.items()]
         scores = np.array(scores)
@@ -70,23 +89,3 @@ class RandomMCTS(MCTS):
         cost += self.graph.edges[current_node, node.path[0]]['weight']
 
         return cost
-
-
-    def run(self, num_of_expand, num_of_simulate):
-        current_node = self.root
-        while True:
-            # select
-
-            # reach the end, break condition
-            if len(current_node.expendables) == 0:
-                break
-
-            # expand and simulate
-            for i in range(min(num_of_expand, len(current_node.expendables))):
-                new_node = self.expand(current_node)
-                costs = []
-                for j in range(num_of_simulate):
-                    costs.append(self.simulate(new_node))
-                new_node.score = sum(costs) / num_of_simulate
-
-            self.backpropagate(current_node)
