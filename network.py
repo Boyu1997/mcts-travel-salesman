@@ -1,6 +1,5 @@
 import numpy as np
 import networkx as nx
-from matplotlib import pyplot as plt
 
 
 class RandomNetwork():
@@ -28,8 +27,3 @@ class RandomNetwork():
             weight = (d[:, 0]**2 + d[:, 1]**2)**0.5
             weighted_edges = [(i, i+j, weight[j-1]) for j in range(1, self.num_of_node-i)]
             self.graph.add_weighted_edges_from(weighted_edges)
-
-
-    def draw_graph(self):
-        nx.draw(self.graph, self.positions, node_size=50, edge_color='0.2')
-        plt.show()
