@@ -15,4 +15,5 @@ edges, cost = two_opt(network)
 
 ### mcts
 random_mcts = RandomMCTS(network)
-random_mcts.run(5, 100)
+edges = random_mcts.run(20, 100)
+plot_path(network.graph.nodes, edges, network.positions)

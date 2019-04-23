@@ -11,21 +11,29 @@ class Node():
         self.cost = cost
         self.score = None
         self.policy = None
-        self.expendables = copy.deepcopy(unvisited_nodes)
-        random.shuffle(self.expendables)
-        self.expended = {}
+        self.expandables = copy.deepcopy(unvisited_nodes)
+        random.shuffle(self.expandables)
+        self.expanded = {}
 
 
 
 class MCTS():
 
     def __init__(self, network):
+        self.num_of_node = network.num_of_node
         self.graph = network.graph
         self.root = Node(None, 'root', [], list(self.graph.nodes), 0)
 
 
+    def select(self, node):
+        if node.policy == None:
+            return node
+        else:
+            return self.select(node.policy)
+
+
     def expand(self, node):
-        new_node = node.expendables.pop()
+        new_node = node.expandables.pop()
         new_path = copy.deepcopy(node.path)
         new_path.append(new_node)
         new_unvisited_nodes = copy.deepcopy(node.unvisited_nodes)
@@ -34,19 +42,46 @@ class MCTS():
         if node.node != 'root':
             new_cost += self.graph.edges[node.node, new_node]['weight']
         new_node_object = Node(node, new_node, new_path, new_unvisited_nodes, new_cost)
-        node.expended[new_node] = new_node_object
+        node.expanded[new_node] = new_node_object
         return new_node_object
 
 
+    def backpropagate(self, node):
+        scores = [[key, n.score] for key, n in node.expanded.items()]
+        scores = np.array(scores)
+        node.score = sum(scores[:, 1]) / len(scores)
+        node.policy = node.expanded[scores[np.argmin(scores[:, 1])][0]]
+        if node.parent != None:
+            self.backpropagate(node.parent)
+
+
+    def generate_path_edges(self, path):
+        path_edges = []
+        current_node = path.pop()
+        while len(path) > 0:
+            next_node = path.pop()
+            path_edges.append(tuple([current_node, next_node,
+                                     self.graph.edges[current_node, next_node]]))
+            current_node = next_node
+        path_edges.append(tuple([path_edges[-1][1], path_edges[0][0],
+                                 self.graph.edges[path_edges[-1][1], path_edges[0][1]]]))
+        return path_edges
+
+
+
+
+
+
     def run(self, num_of_expand, num_of_simulate):
-        current_node = self.root
         while True:
+            current_node = self.select(self.root)
+
             # reach the end, break condition
-            if len(current_node.expendables) == 0:
+            if len(current_node.expandables) == 0 and len(current_node.path) == self.num_of_node:
                 break
 
             # expand and simulate
-            for i in range(min(num_of_expand, len(current_node.expendables))):
+            for i in range(min(num_of_expand, len(current_node.expandables))):
                 new_node = self.expand(current_node)
                 costs = []
                 for j in range(num_of_simulate):
@@ -56,14 +91,8 @@ class MCTS():
             # back up the score and update policy
             self.backpropagate(current_node)
 
-
-    def backpropagate(self, node):
-        scores = [[key, n.score] for key, n in node.expended.items()]
-        scores = np.array(scores)
-        node.score = sum(scores[:, 1]) / len(scores)
-        node.policy = scores[np.argmin(scores[:, 1])][0]
-        if node.parent != None:
-            self.backpropagate(node.parent)
+        path_edges = self.generate_path_edges(current_node.path)
+        return path_edges
 
 
 class RandomMCTS(MCTS):
