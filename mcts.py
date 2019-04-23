@@ -9,11 +9,16 @@ class Node():
         self.path = path
         self.unvisited_nodes = unvisited_nodes
         self.cost = cost
+        self.num_of_visit = 1
+        self.estimate = None
         self.score = None
         self.policy = None
         self.expandables = copy.deepcopy(unvisited_nodes)
         random.shuffle(self.expandables)
         self.expanded = {}
+
+    def calculate_score(self, C=1):
+        self.score = self.estimate + C * (np.log(self.parent.num_of_visit) / self.num_of_visit)**0.5
 
 
 
@@ -25,18 +30,11 @@ class MCTS():
         self.root = Node(None, 'root', [], list(self.graph.nodes), 0)
 
 
-    def select(self, node, prob_policy):
+    def select(self, node):
         if node.policy == None:
             return node
         else:
-            if random.random() < prob_policy:
-                return self.select(node.policy, prob_policy)
-            else:
-                if len(node.expandables) > 0:
-                    return node
-                else:
-                    next_node = random.choice(list(node.expanded.values()))
-                    return self.select(next_node, prob_policy)
+            return self.select(node.policy)
 
 
     def expand(self, node):
@@ -54,6 +52,8 @@ class MCTS():
 
 
     def backpropagate(self, node):
+
+        # decide policy for this node
         scores = []
         for key, n in node.expanded.items():
             if node.node != 'root':
@@ -63,7 +63,18 @@ class MCTS():
         scores = np.array(scores)
         node.score = sum(scores[:, 1]) / len(scores)
         node.policy = node.expanded[scores[np.argmin(scores[:, 1])][0]]
-        if node.parent != None:
+
+        if node.node != 'root':
+
+            # evaluate how good this node is as a child
+            estimates = []
+            for key, n in node.expanded.items():
+                estimates.append([key, n.estimate + self.graph.edges[node.node, n.node]['weight']])
+            estimates = np.array(estimates)
+            node.estimate = sum(estimates[:, 1]) / len(estimates)
+            node.calculate_score()
+
+            # keep going until root node
             self.backpropagate(node.parent)
 
 
@@ -83,9 +94,9 @@ class MCTS():
         return path_edges, cost
 
 
-    def run(self, prob_policy, num_of_expand, num_of_simulate):
+    def run(self, num_of_expand, num_of_simulate, C):
         while True:
-            current_node = self.select(self.root, prob_policy)
+            current_node = self.select(self.root)
 
             # reach the end, break condition
             if len(current_node.path) == self.num_of_node:
@@ -97,12 +108,15 @@ class MCTS():
                 costs = []
                 for j in range(num_of_simulate):
                     costs.append(self.simulate(new_node))
-                new_node.score = sum(costs) / num_of_simulate
+                new_node.estimate = sum(costs) / num_of_simulate
+                new_node.calculate_score()
 
-            # back up the score and update policy
+
+            # back up the estimate, calculate score, and update policy
             self.backpropagate(current_node)
 
         return self.calculate_path_edges(current_node.path)
+
 
 
 class RandomMCTS(MCTS):

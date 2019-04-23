@@ -18,7 +18,7 @@ network = RandomNetwork(30, 100)
 #
 # ### mcts
 # random_mcts = RandomMCTS(network)
-# edges, cost = random_mcts.run(0.95, 5, 10)
+# edges, cost = random_mcts.run(50, 20, 1000)
 # plot_path(network.graph.nodes, edges, network.positions)
 # print ("mcts has cost of {:.2f}".format(cost))
 
@@ -40,7 +40,7 @@ for i in range(num_of_network):
         results[1].append(cost)
 
         random_mcts = RandomMCTS(network)
-        edges, cost = random_mcts.run(0.95, 5, 10)
+        edges, cost = random_mcts.run(50, 20, 1000)
         results[2].append(cost)
 
 print ("greedy has cost of {:.2f}".format(sum(results[0])/len(results[0])))
