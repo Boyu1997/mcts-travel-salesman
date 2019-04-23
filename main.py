@@ -15,4 +15,4 @@ edges, cost = two_opt(network)
 
 ### mcts
 random_mcts = RandomMCTS(network)
-random_mcts.run()
+random_mcts.run(5, 100)
