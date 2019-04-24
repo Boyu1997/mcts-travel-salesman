@@ -142,3 +142,39 @@ class RandomMCTS(MCTS):
         cost += self.graph.edges[current_node, node.path[0]]['weight']
 
         return cost
+
+
+
+class GreedyMCTS(MCTS):
+
+    def __init__(self, network, prob_greedy):
+        MCTS.__init__(self, network)
+        self.prob_greedy = prob_greedy
+
+
+    def simulate(self, node):
+
+        # setup
+        unvisited_nodes = copy.deepcopy(node.unvisited_nodes)
+        random.shuffle(unvisited_nodes)
+        current_node = node.node
+        cost = 0
+
+        # greedy path finding
+        while len(unvisited_nodes) > 0:
+            if random.random() < self.prob_greedy:
+                edges = []
+                for n in unvisited_nodes:
+                    edges.append(tuple([current_node, n, self.graph.edges[current_node, n]]))
+                edges = sorted(edges, key = lambda x: x[2]['weight'], reverse=False)
+                unvisited_nodes.remove(edges[0][1])
+                cost += edges[0][2]['weight']
+                current_node = edges[0][1]
+            else:
+                next_node = unvisited_nodes.pop()
+                cost += self.graph.edges[current_node, next_node]['weight']
+                current_node = next_node
+
+        cost += self.graph.edges[current_node, node.path[0]]['weight']
+
+        return cost
