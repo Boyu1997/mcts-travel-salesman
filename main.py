@@ -3,5 +3,6 @@ from plot import plot_path
 from test import single_test, small_test
 
 
-network = Network(30, 100)
-single_test(network, plot=False)
+single_test(30, plot=True)
+
+# small_test(5, 3, 30)
