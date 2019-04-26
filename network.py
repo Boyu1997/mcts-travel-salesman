@@ -2,7 +2,7 @@ import numpy as np
 import networkx as nx
 
 
-class RandomNetwork():
+class Network():
 
     def __init__(self, num_of_node, side_length):
         self.num_of_node = num_of_node
