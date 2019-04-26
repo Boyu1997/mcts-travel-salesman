@@ -1,8 +1,9 @@
 from network import Network
 from plot import plot_path
-from test import single_test, small_test
+from test import test
+from simulation import simulation
 
 
-single_test(30, plot=True)
+# test(30, plot=True)
 
-# small_test(5, 3, 30)
+simulation(50, 10, 8, plot=True)

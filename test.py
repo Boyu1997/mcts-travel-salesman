@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 import time
 
 
-# ###### Single Test ######
+# ###### Test ######
 #
 # To run each of the method once to test code is working. This function can
 # also plot the path each algorithm found.
@@ -16,7 +16,7 @@ import time
 # |- side_length: the side length of the 2d square the all the nodes rest on
 # └- plot: a boolean telling if to plot the path each algorithm came up with
 
-def single_test(num_of_node, side_length=100, plot=False):
+def test(num_of_node, side_length=100, plot=False):
 
     network = Network(num_of_node, side_length)
     edges_set = []
@@ -79,45 +79,3 @@ def single_test(num_of_node, side_length=100, plot=False):
             plot_path(axs[int(i/2),i%2], model_names[i], cost_set[i], run_time_set[i],
                       network.graph.nodes, edges_set[i], network.positions)
         plt.show()
-
-
-
-# ###### Small Test ######
-#
-# Run a small Monte Carlo simulation to get a quick performance summary.
-#
-# Input
-# |- num_of_network: number of network to test on
-# |- trail_per_network: number of trail to run each method on a network
-# |- num_of_node: number of node to visit
-# |- side_length: the side length of the 2d square the all the nodes rest on
-# └- plot: a boolean telling if to plot a histogram
-
-def small_test(num_of_network, trail_per_network, num_of_node, side_length=100, plot=False):
-
-    results = [[] for _ in range(4)]
-
-    for i in range(num_of_network):
-        network = Network(30, 100)
-        for j in range(trail_per_network):
-            edges, cost = greedy(network)
-            results[0].append(cost)
-
-            edges, cost = two_opt(network)
-            results[1].append(cost)
-
-            random_mcts = RandomMCTS(network)
-            edges, cost = random_mcts.run(50, 20, 100)
-            results[2].append(cost)
-
-            greedy_mcts = GreedyMCTS(network, 0.2)
-            edges, cost = greedy_mcts.run(50, 20, 100)
-            results[3].append(cost)
-
-    print ("greedy has cost of {:.2f}".format(sum(results[0])/len(results[0])))
-    print ("2 opt has cost of {:.2f}".format(sum(results[1])/len(results[1])))
-    print ("random mcts has cost of {:.2f}".format(sum(results[2])/len(results[2])))
-    print ("greedy mcts has cost of {:.2f}".format(sum(results[3])/len(results[3])))
-
-    if plot == True:
-        plt
