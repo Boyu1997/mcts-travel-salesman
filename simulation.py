@@ -11,18 +11,7 @@ from multiprocessing import Pool
 from itertools import product
 
 
-# ###### Simulation ######
-#
-# Run Monte Carlo simulation to get performance report.
-#
-# Input
-# |- num_of_network: number of network to test on
-# |- trail_per_network: number of trail to run each method on a network
-# |- num_of_node: number of node to visit
-# |- side_length: the side length of the 2d square the all the nodes rest on
-# └- plot: a boolean telling if to plot a histogram
-
-
+# trail function defined separately for multiprocessing
 def run_trail(network):
 
     results = []
@@ -60,6 +49,17 @@ def run_trail(network):
     return results
 
 
+
+# ###### Simulation ######
+#
+# Run Monte Carlo simulation to get performance report.
+#
+# Input
+# |- num_of_network: number of network to test on
+# |- trail_per_network: number of trail to run each method on a network
+# |- num_of_node: number of node to visit
+# |- side_length: the side length of the 2d square the all the nodes rest on
+# └- plot: a boolean telling if to plot a histogram
 
 def simulation(num_of_network, trail_per_network, num_of_node, side_length=100, plot=False):
 

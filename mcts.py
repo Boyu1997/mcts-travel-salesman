@@ -2,6 +2,7 @@ import copy
 import random
 import numpy as np
 
+### Node Object ###
 class Node():
     def __init__(self, parent, node, path, unvisited_nodes, cost):
         self.parent = parent

@@ -1,6 +1,13 @@
 import numpy as np
 import networkx as nx
 
+### Network ###
+#
+# Create random fully connected newtowk using networkx with pisition information
+#
+# Input
+# |- num_of_node: number of nodes in the network
+# └- side_length: length of the 2-d square to place nodes on  
 
 class Network():
 
